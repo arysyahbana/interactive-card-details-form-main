@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- displays site properly based on user's device -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./images/favicon-32x32.png"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Frontend Mentor | Interactive card details form</title>
+
+    <!-- Feel free to remove these styles or customise in your own stylesheet 👍 -->
+    <style>
+      .attribution {
+        font-size: 11px;
+        text-align: center;
+      }
+      .attribution a {
+        color: hsl(228, 45%, 44%);
+      }
+      body {
+        font-family: "Space Grotesk", sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="flex md:h-screen relative">
+        <!-- background -->
+        <img
+          class="hidden md:block lg:block xl:block 2xl:block"
+          src="/images/bg-main-desktop.png"
+          alt=""
+        />
+        <img
+          class="block md:hidden w-screen min-h-full"
+          src="/images/bg-main-mobile.png"
+          alt=""
+        />
+
+        <!-- card front-->
+        <div
+          class="absolute z-10 top-[55%] left-[5%] md:top-[20%] md:left-[10%]"
+        >
+          <div class="relative p-5 md:p-0">
+            <img src="/images/bg-card-front.png" alt="" />
+            <div class="absolute top-[8%] left-[5%] text-white">
+              <div
+                class="grid grid-cols-2 items-center mt-4 ml-3 md:mt-0 md:ml-0"
+              >
+                <div class="bg-white rounded-full w-11 h-11 mr-3"></div>
+                <div class="border border-white rounded-full w-5 h-5"></div>
+              </div>
+            </div>
+            <div class="absolute bottom-[8%] md:bottom-[15%] w-full text-white">
+              <div class="grid grid cols-2 mr-12 md:mr-0 mb-5 md:mb-0">
+                <div class="col-span-2">
+                  <p
+                    class="text-3xl md:text-4xl text-center"
+                    v-if="number == ''"
+                  >
+                    0000 0000 0000 0000
+                  </p>
+                  <p class="text-3xl md:text-4xl text-center" v-else>
+                    {{ formattedNumber }}
+                  </p>
+                </div>
+                <div class="pl-[10%] pt-[10%]">
+                  <span v-if="name == '' "> Your Name </span>
+                  <span v-else> {{ name }} </span>
+                </div>
+                <div class="pr-[15%] text-end pt-[14%]">
+                  <span v-if="MM == '' ">MM</span>
+                  <span v-else>{{ MM }}</span> /
+                  <span v-if="YY == '' ">YY</span>
+                  <span v-else>{{ YY }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- card back -->
+        <div
+          class="absolute bottom-[14%] left-[10%] md:bottom-[22%] md:left-[15%] shadow"
+        >
+          <div class="relative px-5 md:px-0">
+            <img src="/images/bg-card-back.png" alt="" />
+            <div class="absolute top-[44%] left-[75%] md:left-[80%]">
+              <div class="grid grid-cols-1">
+                <p class="text-white" v-if="CVC == '' ">000</p>
+                <p class="text-white" v-else>{{ CVC }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- form untuk xl -->
+        <div
+          class="hidden xl:flex xl:flex-col xl:justify-center xl:items-center xl:ml-28"
+        >
+          <div
+            :class="{'hidden' : show,  'md:flex md:flex-col md:justify-center md:items-center md:ml-80' : !show}"
+          >
+            <div class="container">
+              <div class="grid grid-cols-6 gap-5 mt-10 max-w-md">
+                <div class="col-span-6">
+                  <label for="name" class="text-sm font-bolder"
+                    >CARDHOLDER NAME</label
+                  >
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': nameError}
+                            ]"
+                    placeholder="e.g. Jane Appleseed"
+                    v-model="name"
+                  />
+                  <label
+                    for="name"
+                    class="text-xs text-amber-600"
+                    v-if="nameError"
+                    >Can't be blank</label
+                  >
+                </div>
+                <div class="col-span-6">
+                  <label for="number" class="text-sm font-bolder"
+                    >CARD NUMBER</label
+                  >
+                  <input
+                    type="number"
+                    name="number"
+                    id="number"
+                    :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': numberError}
+                            ]"
+                    placeholder="e.g. 1234 5678 9123 0000"
+                    maxlength="16"
+                    v-model="number"
+                    @input="formatInput"
+                    maxlength="16"
+                  />
+                  <label
+                    for="number"
+                    class="text-xs text-amber-600"
+                    v-if="numberError"
+                    >Wrong format, numbers only</label
+                  >
+                </div>
+
+                <div class="col-span-6">
+                  <div class="grid grid-cols-6">
+                    <div class="col-span-2">
+                      <label for="expire" class="text-sm font-bolder"
+                        >EXP.DATE (MM/YY)</label
+                      >
+                    </div>
+                    <div class="col-span-4">
+                      <label for="CVC" class="text-sm font-bolder">CVC</label>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-6">
+                    <div class="col-span-1 mr-2">
+                      <input
+                        type="number"
+                        name="MM"
+                        id="MM"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': mmError}
+                            ]"
+                        placeholder="MM"
+                        v-model="MM"
+                      />
+                      <label
+                        for="expire"
+                        class="text-xs text-amber-600 text-center"
+                        v-if="mmError"
+                        >Can't blank</label
+                      >
+                    </div>
+                    <div class="col-span-1 mr-2">
+                      <input
+                        type="number"
+                        name="YY"
+                        id="YY"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': yyError}
+                            ]"
+                        placeholder="YY"
+                        v-model="YY"
+                      />
+                      <label
+                        for="YY"
+                        class="text-xs text-amber-600 text-center"
+                        v-if="yyError"
+                        >Can't blank</label
+                      >
+                    </div>
+                    <div class="col-span-4">
+                      <input
+                        type="number"
+                        name="CVC"
+                        id="CVC"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': cvcError}
+                            ]"
+                        placeholder="e.g. 123"
+                        v-model="CVC"
+                      />
+                      <label
+                        for="CVC"
+                        class="text-xs text-amber-600"
+                        v-if="cvcError"
+                        >Can't be blank</label
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-span-6">
+                  <button
+                    @click="confirm()"
+                    type="button"
+                    class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- success md -->
+        <div
+          :class="{'hidden': !show, 'md:flex md:flex-col md:justify-center md:items-center md:ml-80':show}"
+        >
+          <div class="container">
+            <div class="grid grid-cols-12 gap-5 mt-10 min-w-96">
+              <div class="col-span-12 text-center">
+                <img class="mx-auto" src="/images/icon-complete.svg" alt="" />
+                <p class="mt-7 text-3xl">THANK YOU!</p>
+                <p class="mb-7 mt-2 text-gray-500">
+                  We've added your card details
+                </p>
+                <a
+                  href="/"
+                  type="button"
+                  class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                >
+                  Continue
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- copyright -->
+        <div class="hidden md:block attribution">
+          Challenge by
+          <a href="https://www.frontendmentor.io?ref=challenge" target="_blank"
+            >Frontend Mentor</a
+          >. Coded by
+          <a href="https://www.frontendmentor.io/profile/arysyahbana"
+            >Ary Syahbana</a
+          >.
+        </div>
+      </div>
+
+      <!-- form untuk sm -->
+      <div class="md:hidden">
+        <div :class="{'hidden': smShow, 'block' :!smShow}">
+          <div class="container mt-24">
+            <div class="flex justify-center">
+              <div class="grid grid-cols-6 gap-5 mt-10 max-w-md">
+                <div class="col-span-6">
+                  <label for="name" class="text-sm font-bolder"
+                    >CARDHOLDER NAME</label
+                  >
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': nameError}
+                            ]"
+                    placeholder="e.g. Jane Appleseed"
+                    v-model="name"
+                  />
+                  <label
+                    for="name"
+                    class="text-xs text-amber-600"
+                    v-if="nameError"
+                    >Can't be blank</label
+                  >
+                </div>
+                <div class="col-span-6">
+                  <label for="number" class="text-sm font-bolder"
+                    >CARD NUMBER</label
+                  >
+                  <input
+                    type="number"
+                    name="number"
+                    id="number"
+                    :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': numberError}
+                            ]"
+                    placeholder="e.g. 1234 5678 9123 0000"
+                    v-model="number"
+                    @input="formatInput"
+                    maxlength="16"
+                  />
+                  <label
+                    for="number"
+                    class="text-xs text-amber-600"
+                    v-if="numberError"
+                    >Wrong format, numbers only</label
+                  >
+                </div>
+
+                <div class="col-span-6">
+                  <div class="grid grid-cols-6">
+                    <div class="col-span-2">
+                      <label for="expire" class="text-sm font-bolder"
+                        >EXP.DATE (MM/YY)</label
+                      >
+                    </div>
+                    <div class="col-span-4">
+                      <label for="CVC" class="text-sm font-bolder">CVC</label>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-6">
+                    <div class="col-span-1 mr-2">
+                      <input
+                        type="number"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': mmError}
+                            ]"
+                        placeholder="MM"
+                        v-model="MM"
+                      />
+                      <label class="text-xs text-amber-600" v-if="mmError"
+                        >Can't blank</label
+                      >
+                    </div>
+                    <div class="col-span-1 mr-2">
+                      <input
+                        type="number"
+                        name="expire"
+                        id="expire"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': yyError}
+                            ]"
+                        placeholder="YY"
+                        v-model="YY"
+                      />
+                      <label
+                        for="expire"
+                        class="text-xs text-amber-600"
+                        v-if="yyError"
+                        >Can't blank</label
+                      >
+                    </div>
+                    <div class="col-span-4">
+                      <input
+                        type="number"
+                        name="CVC"
+                        id="CVC"
+                        :class="[
+                              'border border-gray-300 bg-gray-50 text-gray-900 text-sm rounded-lg block w-full p-2.5',
+                              {'border-amber-600 focus:ring-blue-500 focus:border-blue-500': cvcError}
+                            ]"
+                        placeholder="e.g. 123"
+                        v-model="CVC"
+                      />
+                      <label
+                        for="CVC"
+                        class="text-xs text-amber-600"
+                        v-if="cvcError"
+                        >Can't be blank</label
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-span-6">
+                  <button
+                    @click="smConfirm()"
+                    type="button"
+                    class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- success sm -->
+      <div class="md:hidden">
+        <div :class="{'hidden' : !smShow, 'block mt-40' : smShow}">
+          <div class="container px-16">
+            <div class="grid grid-cols-12 mt-10">
+              <div class="col-span-12 text-center">
+                <img class="mx-auto" src="/images/icon-complete.svg" alt="" />
+                <p class="mt-7 text-3xl">THANK YOU!</p>
+                <p class="mb-7 mt-2 text-gray-500">
+                  We've added your card details
+                </p>
+                <a
+                  href="/"
+                  type="button"
+                  class="w-full text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
+                >
+                  Continue
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { createApp } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+      createApp({
+        data() {
+          return {
+            name: "",
+            number: "",
+            formattedNumber: "0".repeat(16).replace(/(.{4})/g, "$1 "),
+            MM: "",
+            YY: "",
+            CVC: "",
+
+            show: false,
+            smShow: false,
+
+            nameError: false,
+            numberError: false,
+            mmError: false,
+            yyError: false,
+          };
+        },
+
+        computed: {},
+
+        methods: {
+          formatInput() {
+            this.formattedNumber = this.number
+              .toString()
+              .padStart(16, "0")
+              .replace(/(.{4})/g, "$1 ");
+          },
+
+          confirm() {
+            this.show = !this.show;
+          },
+
+          smConfirm() {
+            this.smShow = !this.smShow;
+          },
+        },
+
+        watch: {
+          name(value) {
+            if (value.length == 0) {
+              this.nameError = true;
+            } else {
+              this.nameError = false;
+            }
+          },
+
+          number(value) {
+            if (!/^\d+$/.test(value)) {
+              this.numberError = true;
+            } else {
+              this.numberError = false;
+            }
+          },
+
+          MM(value) {
+            if (value.length == 0) {
+              this.mmError = true;
+            } else {
+              this.mmError = false;
+            }
+          },
+
+          YY(value) {
+            if (value.length == 0) {
+              this.yyError = true;
+            } else {
+              this.yyError = false;
+            }
+          },
+
+          CVC(value) {
+            if (value.length == 0) {
+              this.cvcError = true;
+            } else {
+              this.cvcError = false;
+            }
+          },
+        },
+
+        computed: {},
+      }).mount("#app");
+    </script>
+  </body>
+</html>
